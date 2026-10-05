@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitud de financiación · Belender</title><style>
+/* ============================================================
+   Belender · Presentación interactiva — estilos compartidos
+   Pensado para proyección en pantalla: tipografía grande (Tahoma),
+   sin scroll vertical, navegación por secciones tipo galería.
+   ============================================================ */
+
+:root {
+  --green: #86ae6b;
+  --green-600: #5e8f4a;
+  --green-300: #9cc77d;
+  --green-200: #bcd9a5;
+  --green-150: #cfe6bb;
+  --green-100: #d4e3c4;
+  --green-tint: #eef4e7;
+  --grad: linear-gradient(135deg, var(--green-600), var(--green-300));
+  --ink: #0B1120;
+  --ink-2: #1f2a17;
+  --slate: #5A6478;
+  --slate-2: #3A4358;
+  --slate-3: #26304A;
+  --muted: #8A93A6;
+  --muted-d: #9AA9C4;
+  --bg: #ffffff;
+  --bg-alt: #F6F8FC;
+  --line: #E6E9F0;
+  --line-2: #EEF1F7;
+  --line-3: #E3E7F0;
+  --font: Tahoma, Verdana, Segoe UI, system-ui, sans-serif;
+  --font-head: var(--font);
+  --font-body: var(--font);
+  --fs-base: 25px;
+  --radius: 22px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden; /* no scroll: todo cabe en pantalla, como una diapositiva */
+}
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { display: block; max-width: 100%; }
+button { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   Barra superior (todas las páginas salvo el índice)
+   ============================================================ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  height: 84px; display: flex; align-items: center; gap: 24px;
+  padding: 0 40px; background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px); border-bottom: 1px solid var(--line-2);
+}
+.topbar__home {
+  display: inline-flex; align-items: center; gap: 10px; font-weight: 700;
+  font-size: 20px; color: var(--slate-2); flex-shrink: 0;
+}
+.topbar__home svg { width: 24px; height: 24px; }
+.topbar__home:hover { color: var(--green-600); }
+.topbar__title { font-weight: 700; font-size: 26px; color: var(--ink); }
+.topbar__crumb { color: var(--muted); font-weight: 600; }
+.lang-toggle {
+  margin-left: auto; display: flex; align-items: center; border: 1px solid var(--line-3);
+  border-radius: 999px; padding: 3px; gap: 2px;
+}
+.lang-toggle__btn {
+  border: none; background: none; cursor: pointer; font-family: var(--font);
+  font-weight: 700; font-size: 14px; color: var(--muted); padding: 6px 14px; border-radius: 999px;
+  transition: background 0.2s, color 0.2s;
+}
+.lang-toggle__btn.is-active { background: var(--ink); color: #fff; }
+.lang-toggle + .topbar__dots { margin-left: 20px; }
+.topbar__dots { margin-left: auto; display: flex; gap: 10px; }
+.topbar__dot {
+  width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--line-3); transition: background 0.2s, transform 0.2s;
+}
+.topbar__dot.is-active { background: var(--green-600); transform: scale(1.2); }
+.topbar__dot:hover { background: var(--green-300); }
+
+/* ============================================================
+   Escenario de diapositivas (galería horizontal, sin scroll)
+   ============================================================ */
+.stage {
+  position: fixed; inset: 0; top: 84px;
+}
+.slide {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: none; flex-direction: column; align-items: center; justify-content: safe center;
+  padding: 40px 90px;
+  overflow-y: auto; /* red de seguridad: si el contenido no cabe en pantallas pequeñas, hace scroll local en vez de desaparecer */
+  animation: slideIn 0.3s ease both;
+}
+.slide.is-active { display: flex; }
+@keyframes slideIn { from { opacity: 0; } to { opacity: 1; } }
+
+.arrow-nav {
+  position: fixed; top: calc(84px + (100vh - 84px) / 2); transform: translateY(-50%);
+  z-index: 50; width: 68px; height: 68px; border-radius: 50%; border: none;
+  background: #fff; box-shadow: 0 10px 30px -8px rgba(11, 17, 32, 0.28);
+  color: var(--slate-2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.arrow-nav svg { width: 30px; height: 30px; }
+.arrow-nav:hover { background: var(--green-tint); color: var(--green-600); transform: translateY(-50%) scale(1.06); }
+.arrow-nav:disabled { opacity: 0; pointer-events: none; }
+.arrow-nav--prev { left: 28px; }
+.arrow-nav--next { right: 28px; }
+
+.eyebrow {
+  display: inline-block; margin-bottom: 14px; font-size: 19px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-600);
+}
+.slide__title {
+  font-size: clamp(38px, 4.6vw, 58px); font-weight: 700; text-align: center;
+  max-width: 1100px; line-height: 1.15; color: var(--ink);
+}
+.slide__title--emphasis { text-transform: uppercase; text-decoration: underline; text-underline-offset: 5px; }
+.slide__lead {
+  font-size: 27px; color: var(--slate); text-align: center; max-width: 900px;
+  margin-top: 20px; line-height: 1.45;
+}
+.slide__body { margin-top: 44px; width: 100%; max-width: 1400px; }
+
+/* ============================================================
+   Componentes reutilizables de contenido
+   ============================================================ */
+.card-grid { display: grid; gap: 32px; width: 100%; }
+.card-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+.solution-card {
+  background: linear-gradient(180deg, #FBFCFE, #fff); border: 1px solid var(--line-2);
+  border-radius: var(--radius); padding: 40px 34px; text-align: left;
+  box-shadow: 0 20px 50px -30px rgba(11, 17, 32, 0.25);
+}
+.solution-card__icon {
+  width: 64px; height: 64px; border-radius: 18px; background: var(--grad);
+  color: #fff; display: flex; align-items: center; justify-content: center; margin-bottom: 22px;
+}
+.solution-card__icon svg { width: 32px; height: 32px; }
+.solution-card__title { font-size: 27px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.solution-card__desc { font-size: 20px; color: var(--slate); margin-top: 14px; line-height: 1.45; }
+
+.metric-tile {
+  text-align: center; padding: 42px 26px; border: 1px solid var(--line-2);
+  border-radius: var(--radius); background: linear-gradient(180deg, #FBFCFE, #fff);
+}
+.metric-tile__num {
+  font-weight: 700; font-size: 56px; line-height: 1;
+  background: linear-gradient(120deg, var(--green-600), var(--green-300));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.metric-tile__title { font-weight: 700; font-size: 22px; margin-top: 16px; color: var(--ink); }
+.metric-tile__desc { font-size: 18px; color: var(--muted); margin-top: 6px; }
+
+.metric-tile--compare { padding-top: 30px; }
+.metric-tile__today { font-size: 18px; font-weight: 600; color: var(--muted); }
+.metric-tile__growth {
+  display: inline-flex; align-items: center; gap: 6px; margin: 10px 0;
+  background: var(--grad); color: #fff; font-weight: 700; font-size: 18px;
+  padding: 6px 16px; border-radius: 999px;
+}
+.metric-tile__growth svg { width: 16px; height: 16px; }
+
+.assumption-chips {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 22px;
+}
+.assumption-chips--vertical { flex-direction: column; align-items: center; }
+.assumption-chip {
+  font-size: 17px; font-weight: 700; color: var(--ink); background: var(--green-tint);
+  border: 1px solid var(--green-150); padding: 9px 18px; border-radius: 999px;
+}
+.note-banner {
+  margin-top: 20px; text-align: center; font-size: 22px; font-weight: 600;
+  color: var(--slate-3); background: var(--bg-alt); border: 1px solid var(--line);
+  border-radius: 16px; padding: 20px 30px; max-width: 1100px;
+}
+
+.logo-groups { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; }
+.logo-group {
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 16px 24px;
+  background: linear-gradient(180deg, #FBFCFE, #fff);
+}
+.logo-group__title {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--green-600); margin-bottom: 12px;
+}
+.logo-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.logo-chip {
+  font-weight: 700; font-size: 17px; color: var(--slate-3); background: var(--bg-alt);
+  border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px;
+}
+.logo-img-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 26px; align-items: center; justify-items: center;
+}
+.logo-img { height: 54px; width: auto; max-width: 100%; object-fit: contain; }
+
+.coming-soon {
+  text-align: center; color: var(--muted); font-size: 22px; margin-top: 30px;
+}
+
+@media (max-width: 1100px) {
+  .card-grid--3, .card-grid--4, .logo-groups { grid-template-columns: 1fr; }
+}
+
+</style><style>
+.loan-journey { overflow: hidden; }
+.loan-journey .slide__title { margin-bottom: 0; }
+.loan-journey .slide__body { width: min(100%, 1450px); margin-top: clamp(12px, 1.8vh, 20px); }
+.loan-progress { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; margin-bottom: 14px; }
+.loan-progress__segment { height: 6px; border-radius: 99px; background: #e4e8df; }
+.loan-progress__segment.is-complete, .loan-progress__segment.is-current { background: var(--green-600); }
+.loan-stage { display: grid; grid-template-columns: minmax(300px, 390px) minmax(0,1fr); gap: clamp(24px, 4vw, 60px); align-items: center; min-height: clamp(475px, 59vh, 590px); }
+.loan-phone-wrap { display: flex; justify-content: center; align-items: center; }
+.loan-phone-wrap[hidden] { display: none; }
+.loan-phone { width: min(100%, 335px); min-height: 470px; position: relative; overflow: hidden; border: 9px solid #111827; border-radius: 36px; background: #111827; box-shadow: 0 24px 60px -28px rgba(11,17,32,.52); }
+.loan-phone__notch { position: absolute; z-index: 2; top: 7px; left: 50%; width: 92px; height: 18px; border-radius: 0 0 12px 12px; background: #111827; transform: translateX(-50%); }
+.loan-phone__screen { min-height: 452px; padding: 31px 18px 17px; border-radius: 27px; background: #fff; display: flex; flex-direction: column; }
+.loan-screen__brand { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 13px; font-weight: 800; }
+.loan-screen__brand-mark { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 7px; background: var(--green-600); color: #fff; font-size: 12px; }
+.loan-screen__title { margin: 19px 0 5px; color: var(--ink); font-size: 21px; line-height: 1.13; font-weight: 800; }
+.loan-screen__subtitle { margin: 0 0 13px; color: var(--slate); font-size: 13px; line-height: 1.3; }
+.loan-screen__button { min-height: 39px; display: grid; place-items: center; margin-top: auto; border-radius: 10px; background: var(--green-600); color: #fff; font-size: 14px; font-weight: 800; cursor: pointer; user-select: none; }
+.loan-screen__fields { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.loan-screen__field { padding: 7px 8px; border: 1px solid #e2e6df; border-radius: 8px; background: #fbfcfa; }
+.loan-screen__field small { display: block; color: var(--slate); font-size: 10px; line-height: 1.1; }
+.loan-screen__field b { display: block; margin-top: 3px; color: var(--ink-2); font-size: 12px; line-height: 1.1; }
+.loan-screen__docs { display: grid; gap: 7px; margin-top: 4px; }
+.loan-screen__doc { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid #e7eae4; border-radius: 8px; color: var(--ink-2); font-size: 12px; font-weight: 650; }
+.loan-screen__doc::before { content: ""; width: 15px; height: 18px; border: 1.5px solid var(--green-600); border-radius: 3px; }
+.loan-consent { display: grid; gap: 8px; margin-top: 9px; }
+.loan-consent__item { display: flex; align-items: flex-start; gap: 7px; color: var(--slate-3); font-size: 10.5px; line-height: 1.2; }
+.loan-consent__check { flex: 0 0 14px; width: 14px; height: 14px; display: grid; place-items: center; border: 1px solid var(--green-600); border-radius: 3px; color: var(--green-600); font-size: 11px; font-weight: 800; }
+.loan-dni { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; margin: 12px 0; padding: 17px 12px; border: 2px dashed #c9d5c1; border-radius: 15px; background: #f7f9f5; }
+.loan-dni__card { width: 185px; height: 112px; position: relative; padding: 12px; border: 1px solid #b9cbb0; border-radius: 12px; background: linear-gradient(135deg,#fff,#edf4e8); box-shadow: 0 10px 20px -15px rgba(11,17,32,.5); }
+.loan-dni__photo { position: absolute; left: 12px; top: 20px; width: 40px; height: 52px; border-radius: 8px; background: #d9e5d2; }
+.loan-dni__line { width: 82px; height: 5px; margin: 12px 0 0 54px; border-radius: 4px; background: #aeb9a8; }
+.loan-dni__line--short { width: 58px; margin-top: 8px; }
+.loan-dni__scan { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: #72a958; box-shadow: 0 0 10px 3px rgba(94,143,74,.35); animation: loanScan 2s ease-in-out infinite alternate; }
+@keyframes loanScan { from { transform: translateY(-32px); } to { transform: translateY(32px); } }
+.loan-screen__success { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; }
+.loan-screen__check { width: 74px; height: 74px; display: grid; place-items: center; margin-bottom: 14px; border-radius: 50%; background: var(--green-tint); color: var(--green-600); font-size: 43px; font-weight: 700; }
+.loan-screen__contract { display: grid; place-items: center; flex: 1; margin: 14px 0; padding: 18px; border: 1px solid #e3e7df; border-radius: 12px; background: linear-gradient(#fff,#f7f9f5); color: var(--green-600); }
+.loan-screen__contract svg { width: 82px; height: 96px; }
+.loan-service { min-height: 280px; padding: clamp(24px, 3vw, 38px); border: 1px solid var(--line-2); border-radius: 22px; background: linear-gradient(180deg,#fbfcfe,#fff); box-shadow: 0 18px 42px -30px rgba(11,17,32,.24); }
+.loan-service__eyebrow { color: var(--green-600); font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.loan-service h2 { margin: 10px 0 8px; color: var(--ink); font-size: clamp(23px, 2.4vw, 34px); line-height: 1.1; }
+.loan-service__desc { margin: 0; color: var(--slate-3); font-size: clamp(16px, 1.45vw, 20px); line-height: 1.4; }
+.loan-service__options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.loan-service__option { padding: 11px 15px; border: 1px solid var(--green-200); border-radius: 12px; background: var(--green-tint); color: var(--ink-2); font-size: clamp(14px, 1.25vw, 17px); font-weight: 700; }
+.loan-controls { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 8px; }
+.loan-controls__label { color: var(--slate); font-size: 14px; font-weight: 700; }
+.loan-controls__buttons { display: flex; gap: 9px; }
+.loan-controls button { min-width: 112px; padding: 11px 16px; border: 1px solid var(--green-200); border-radius: 11px; background: #fff; color: var(--ink-2); font: 700 15px var(--font-body); cursor: pointer; }
+.loan-controls button[data-loan-next] { border-color: var(--green-600); background: var(--green-600); color: #fff; }
+.loan-controls button:disabled { opacity: .4; cursor: default; }
+.loan-system { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 110px 1fr; align-items: center; gap: 24px; min-height: 470px; padding: 25px; border: 1px solid var(--line-2); border-radius: 24px; background: linear-gradient(180deg,#fbfcfe,#fff); }
+.loan-system[hidden] { display: none; }
+.loan-stage.is-system { grid-template-columns: minmax(320px, 1.2fr) minmax(0,.8fr); }
+.loan-stage.is-system .loan-system { grid-column: 1; grid-template-columns: 1fr; min-height: 470px; }
+.loan-stage.is-system .loan-system__entity { min-height: 145px; }
+.loan-stage.is-system .loan-system__connector { width: 4px; height: 70px; justify-self: center; }
+.loan-stage.is-system .loan-system__connector::after { top: auto; bottom: 0; right: -6px; border: 8px solid transparent; border-top-color: var(--green-600); border-bottom: 0; }
+.loan-stage.is-system .loan-system__packet { left: calc(50% - 9px); top: 0; animation-name: loanPacketVertical; }
+@keyframes loanPacketVertical { to { top: calc(100% - 18px); } }
+.loan-system__entity { min-height: 230px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; border: 1px solid var(--green-200); border-radius: 22px; background: var(--green-tint); color: var(--ink-2); text-align: center; }
+.loan-system__entity svg { width: 64px; height: 64px; color: var(--green-600); }
+.loan-system__entity strong { font-size: clamp(22px, 2.5vw, 34px); }
+.loan-system__entity span { color: var(--slate-3); font-size: 16px; }
+.loan-system__connector { position: relative; height: 4px; border-radius: 9px; background: #dce3d7; }
+.loan-system__connector::after { content: ""; position: absolute; right: 0; top: -6px; border: 8px solid transparent; border-left-color: var(--green-600); border-right: 0; }
+.loan-system__packet { position: absolute; top: -7px; left: 0; width: 18px; height: 18px; border: 3px solid #fff; border-radius: 50%; background: var(--green-600); box-shadow: 0 0 0 2px var(--green-200); animation: loanPacket 2.4s ease-in-out infinite; }
+@keyframes loanPacket { to { left: calc(100% - 18px); } }
+.loan-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.loan-summary span { padding: 9px 10px; border: 1px solid var(--green-200); border-radius: 9px; background: var(--green-tint); color: var(--ink-2); font-size: 13px; font-weight: 700; }
+@media (max-width: 850px) { .loan-journey { overflow-y: auto; } .loan-stage { grid-template-columns: minmax(250px, 330px) minmax(0,1fr); gap: 16px; } .loan-system { grid-template-columns: 1fr; } .loan-system__connector { width: 4px; height: 70px; justify-self: center; } .loan-system__connector::after { top: auto; bottom: 0; right: -6px; border: 8px solid transparent; border-top-color: var(--green-600); border-bottom: 0; } }
+@media (max-width: 620px) { .loan-stage, .loan-stage.is-system { grid-template-columns: 1fr; } .loan-phone { max-width: 330px; } .loan-controls { flex-wrap: wrap; } }
+
+.loan-service[hidden] { display: none; }
+
+/* Ajuste de proyección: móvil a la izquierda y columna de servicio fija. */
+.loan-journey { padding: 22px 90px; overflow: hidden; }
+.loan-journey .eyebrow { margin-bottom: 7px; font-size: 15px; }
+.loan-journey .slide__title { font-size: clamp(34px, 3.6vw, 48px); line-height: 1.08; }
+.loan-journey .slide__body { margin-top: 8px; }
+.loan-progress { margin-bottom: 8px; }
+.loan-stage { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); min-height: clamp(390px, 48vh, 460px); }
+.loan-phone-wrap { align-items: flex-start; }
+.loan-phone { width: min(100%, 270px); min-height: 0; height: 540px; }
+.loan-phone__screen { min-height: 0; height: 100%; }
+.loan-service { width: 100%; min-height: 350px; display: flex; flex-direction: column; justify-content: center; }
+.loan-controls { display: grid; grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); gap: clamp(24px, 4vw, 60px); margin-top: 2px; }
+.loan-controls__buttons { grid-column: 2; justify-self: end; }
+.loan-stage.is-system { grid-template-columns: minmax(270px, 340px) minmax(0, 1fr); gap: clamp(24px, 4vw, 60px); }
+.loan-stage.is-system .loan-system { grid-column: 1; width: 100%; grid-template-columns: 1fr; align-content: center; gap: 9px; min-height: 0; height: 100%; padding: 14px; }
+.loan-stage.is-system .loan-system__entity { min-height: 105px; gap: 5px; padding: 10px; }
+.loan-stage.is-system .loan-system__entity svg { width: 38px; height: 38px; }
+.loan-stage.is-system .loan-system__entity strong { font-size: clamp(18px, 1.8vw, 24px); }
+.loan-stage.is-system .loan-system__entity span { font-size: 13px; }
+.loan-stage.is-system .loan-system__connector { height: 30px; }
+.loan-service.is-empty { visibility: hidden; }
+</style></head><body>
+<header class="topbar">
+  <a class="topbar__home" href="index.html" data-home-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"></path></svg><span data-i18n="topbar_home">Índice</span></a>
+  <span class="topbar__crumb">/</span><span class="topbar__title">4 · Ejemplo end2end</span>
+  <div class="lang-toggle"><button type="button" class="lang-toggle__btn" data-lang-btn="es">ES</button><button type="button" class="lang-toggle__btn" data-lang-btn="en">EN</button></div>
+  <div class="topbar__dots"><button type="button" class="topbar__dot is-active" data-dot aria-label="Solicitud de financiación"></button></div>
+</header><div data-gallery>
+  <button type="button" class="arrow-nav arrow-nav--prev" data-nav="prev" aria-label="Anterior" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></button>
+  <button type="button" class="arrow-nav arrow-nav--next" data-nav="next" aria-label="Siguiente" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></button>
+  <main class="stage" data-stage>  <section class="slide loan-journey">
+    <span class="eyebrow">CASO DE USO</span>
+    <h1 class="slide__title">Ejemplo end2end</h1>
+    <div class="slide__body">
+      <div class="loan-progress" id="loan-progress" aria-label="Progreso del recorrido"></div>
+      <div class="loan-stage" id="loan-stage">
+        <div class="loan-phone-wrap" id="loan-phone-wrap"><div class="loan-phone"><div class="loan-phone__notch"></div><div class="loan-phone__screen" id="loan-screen"></div></div></div>
+        <div class="loan-system" id="loan-system" hidden>
+          <div class="loan-system__entity"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="34" height="32" rx="5"></rect><path d="M14 17h20M14 24h14M14 31h10"></path></svg><strong>Belender</strong><span>Banco de identidades</span></div>
+          <div class="loan-system__connector" aria-hidden="true"><span class="loan-system__packet"></span></div>
+          <div class="loan-system__entity"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7 40V17l17-9 17 9v23M3 40h42M17 40V27h14v13M14 20h.01M24 20h.01M34 20h.01"></path></svg><strong>Banco</strong><span>Recibe una alerta autorizada</span></div>
+        </div>
+        <aside class="loan-service" id="loan-service"></aside>
+      </div>
+      <div class="loan-controls"><div class="loan-controls__buttons"><button type="button" data-loan-prev>Anterior</button><button type="button" data-loan-next>Continuar</button></div></div>
+    </div>
+  </section></main></div>
+<script>window.I18N = { es: { topbar_home: 'Índice' }, en: { topbar_home: 'Index' } };</script><script>
+/* Cadenas compartidas entre páginas (topbar, flechas de navegación...). */
+window.I18N_COMMON = {
+  es: {
+    topbar_home: 'Índice',
+    arrow_prev: 'Anterior',
+    arrow_next: 'Siguiente'
+  },
+  en: {
+    topbar_home: 'Index',
+    arrow_prev: 'Previous',
+    arrow_next: 'Next'
+  }
+};
+
+window.I18N_COPY = { en: {
+  "Índice": "Index",
+  "Presentación": "Presentation",
+  "Preparado para": "Prepared for",
+  "Convención Experian en Granada (España)": "Experian Convention in Granada, Spain",
+  "Servicios · Casos de uso · Clientes · KPIs · Expansión geográfica": "Services · Use cases · Clients · KPIs · Geographic expansion",
+  "Casos de uso · Solución · Izertis · Expansión": "Use cases · Solution · Izertis · Expansion",
+  "Por qué QTSP · Atributos verificables · Banco de identidades": "Why become a QTSP · Verifiable credentials · Identity Bank",
+  "Ejemplo end2end": "End-to-end example",
+  "Recorrido end-to-end": "End-to-end journey",
+  "Anexo: Seguridad": "Security annex",
+  "Certificaciones · Licencias · Validaciones": "Certifications · Licenses · Compliance reviews",
+  "Conectividad directa": "Direct connectivity",
+  "Todas las vías legales de acceso a datos públicos": "All legal routes to public data",
+  "Vías de acceso": "Access methods",
+  "Certificado Digital": "Digital certificate",
+  "Próximamente": "Coming soon",
+  "Portales oficiales · España": "Official portals · Spain",
+  "Datos oficiales": "Official data",
+  "Capacidades Experian": "Experian capabilities",
+  "Atributos": "Attributes",
+  "Flujo de cliente": "Customer journey",
+  "Ver flujo de cliente": "View customer journey",
+  "Identificación presencial": "In-person identification",
+  "Identificación remota": "Remote identification",
+  "Certificado de cliente": "Client certificate",
+  "Flujo de cliente SMS": "SMS customer journey",
+  "Flujo de cliente Cl@ve": "Cl@ve customer journey",
+  "Flujo de cliente Apodera": "Apodera customer journey",
+  "Cerrar": "Close",
+  "Siguiente": "Next",
+  "Subsección 1": "Subsection 1",
+  "Subsección 2": "Subsection 2",
+  "Subsección 3": "Subsection 3",
+  "Subsección 4": "Subsection 4",
+  "Subsección 5": "Subsection 5",
+  "SERVICIO": "SERVICE",
+  "NUEVA OPORTUNIDAD": "NEW OPPORTUNITY",
+  "RESUMEN": "SUMMARY",
+  "Anexo · Seguridad": "Annex · Security",
+  "Belender · Presentación": "Belender · Presentation",
+  "Solicitud de financiación · Belender": "End-to-end example · Belender",
+  "5 de octubre de 2026": "October 5, 2026",
+  "+4.500 datos oficiales": "+4,500 official data records",
+  "+20 EEFFs": "20+ financial institutions",
+  "1T 2027": "Q1 2027",
+  "2T 2027": "Q2 2027",
+  "3T 2027": "Q3 2027",
+  "4T 2027": "Q4 2027",
+  "3T 2028": "Q3 2028",
+  "4T 2028": "Q4 2028",
+  "QTSP · Belender": "QTSP · Belender",
+  "Anexo: Seguridad · Belender": "Security annex · Belender",
+  "SMS": "SMS",
+  "Cl@ve": "Cl@ve",
+  "Apodera": "Apodera",
+  "Opendata · Casos de uso": "Opendata · Use cases",
+  "A lo largo del ciclo de vida del cliente": "Across the customer lifecycle",
+  "Onboarding": "Onboarding",
+  "Diligencia": "Due",
+  "debida": "diligence",
+  "Admisión": "Credit",
+  "de riesgos": "assessment",
+  "Seguimiento": "Risk",
+  "riesgos": "monitoring",
+  "Opendata · Clientes": "Opendata · Clients",
+  "Algunos de nuestros clientes": "Some of our clients",
+  "Belender (directo)": "Belender (direct)",
+  "Canal Experian": "Experian channel",
+  "Entre Experian y Belender tenemos prácticamente todos los Bancos Tier 1 y Tier 2 en España.": "Together, Experian and Belender cover nearly all Tier 1 and Tier 2 banks in Spain.",
+  "Opendata · KPIs": "Opendata · KPIs",
+  "Crecimiento y potencial de consumo": "Growth and consumption potential",
+  "Inicio": "Launch",
+  "¡Empezamos!": "We’re off!",
+  "Primer banco": "First bank",
+  "servicios": "services",
+  "en 1 año": "in one year",
+  "documentos": "documents",
+  "descargados": "downloaded",
+  "servicios prestados": "services delivered",
+  "documentos descargados": "documents downloaded",
+  "del potencial de consumo de los clientes actuales": "of current clients’ consumption potential",
+  "Solo con los clientes actuales": "Based on current clients only",
+  "De forma transversal": "Across the board",
+  "Extracción de key data": "Key data extraction",
+  "Conversión": "Conversion",
+  "Estimación": "Forecast",
+  "Crecimiento": "Growth",
+  "Opendata · Expansión geográfica": "Opendata · Geographic expansion",
+  "Despliegue europeo": "European rollout",
+  "Una expansión por fases, con Opendata como línea de lanzamiento": "A phased expansion, with Opendata as the launch track",
+  "Cada mercado incorpora sus métodos de autenticación y portales oficiales.": "Each market will add its authentication methods and official portals.",
+  "Métodos de autenticación": "Authentication methods",
+  "Portales de acceso": "Access portals",
+  "Por definir": "To be confirmed",
+  "Ver métodos y portales de España": "View authentication methods and portals for Spain",
+  "Ver métodos y portales de Portugal": "View authentication methods and portals for Portugal",
+  "Ver métodos y portales de Italia": "View authentication methods and portals for Italy",
+  "Ver métodos y portales de Francia": "View authentication methods and portals for France",
+  "Ver métodos y portales de Alemania": "View authentication methods and portals for Germany",
+  "Ver métodos y portales de Países Bajos": "View authentication methods and portals for the Netherlands",
+  "Ver métodos y portales de Polonia": "View authentication methods and portals for Poland",
+  "Ver métodos y portales de Suecia": "View authentication methods and portals for Sweden",
+  "Ver métodos y portales de Dinamarca": "View authentication methods and portals for Denmark",
+  "Ver métodos y portales de Noruega": "View authentication methods and portals for Norway",
+  "Ver métodos y portales de Austria": "View authentication methods and portals for Austria",
+  "España": "Spain",
+  "Italia": "Italy",
+  "Francia": "France",
+  "Alemania": "Germany",
+  "Países Bajos": "The Netherlands",
+  "Polonia": "Poland",
+  "Suecia": "Sweden",
+  "Dinamarca": "Denmark",
+  "Noruega": "Norway",
+  "Austria": "Austria",
+  "4T 2026": "Q4 2026",
+  "1T 2027": "Q1 2027",
+  "2T 2027": "Q2 2027",
+  "3T 2027": "Q3 2027",
+  "4T 2027": "Q4 2027",
+  "1T 2028": "Q1 2028",
+  "2T 2028": "Q2 2028",
+  "3T 2028": "Q3 2028",
+  "4T 2028": "Q4 2028",
+  "SPID · MVP": "SPID · MVP",
+  "MVP": "MVP",
+  "Certificado digital": "Digital certificate",
+  "BankID móvil": "Mobile BankID",
+  "EUDI Wallet · Casos de uso": "EUDI Wallet · Use cases",
+  "Casos de uso. Por qué entrar en el espacio de EUDI Wallet": "Use cases: why enter the EUDI Wallet space",
+  "Responder a la obligación normativa de aceptar el EUDI Wallet como mecanismo de identificación, en los casos aplicables a bancos y grandes corporaciones.": "Meet the regulatory obligation for banks and large corporations to accept the EUDI Wallet as an identification method, where applicable.",
+  "Fuente de datos": "Data source",
+  "Incorporar los QEAAs del EUDI Wallet a los datos que puede ofrecer un servicio de Opendata.": "Add EUDI Wallet QEAAs to the data available through an Opendata service.",
+  "Anticiparnos a la evolución del Wallet nos prepara para": "Anticipating the Wallet’s evolution prepares us to",
+  "proteger nuestra posición en Opendata": "protect our position in Opendata",
+  "a medida que crezcan sus atributos y casos de uso.": "as its attributes and use cases grow.",
+  "EUDI Wallet · Solución": "EUDI Wallet · Solution",
+  "Dos formas de integrar el EUDI Wallet": "Two ways to integrate the EUDI Wallet",
+  "Wallet Reader para RPs": "Wallet Reader for RPs",
+  "Solución técnica para que el cliente actúe como relying party: lee el Wallet, valida y entrega el PID y los atributos a sus sistemas.": "A technical solution that lets the client act as a relying party: it reads the Wallet, validates and delivers the PID and attributes to the client’s systems.",
+  "On-premise": "On-premises",
+  "Cloud Belender": "Belender cloud",
+  "RPaaS": "RPaaS",
+  "Belender actúa como relying party, obtiene del Wallet el PID y los atributos autorizados por la persona usuaria y los entrega al tercero con su consentimiento.": "Belender acts as a relying party, retrieves the PID and user-authorised attributes from the Wallet, and shares them with a third party with the user’s consent.",
+  "EUDI Wallet · Partner": "EUDI Wallet · Partner",
+  "¿Quién es Izertis?": "Who is Izertis?",
+  "Participante del consorcio europeo.": "Member of the European consortium.",
+  "Primera wallet digital open source española aprobada por la Comisión Europea.": "Spain’s first open-source digital wallet approved by the European Commission.",
+  "Digital Credentials for Europe. Participante de varios pilotos europeos en universidades.": "Digital Credentials for Europe. Participant in several European university pilots.",
+  "EUDI Wallet · Plan de expansión": "EUDI Wallet · Expansion plan",
+  "Plan de expansión": "Expansion plan",
+  "Despliegue progresivo del servicio Wallet Reader en Europa": "Progressive rollout of Wallet Reader across Europe",
+  "QTSP · Atributos verificables · Banco de Identidades": "QTSP · Verifiable credentials · Identity Bank",
+  "Por qué hacernos QTSP": "Why become a QTSP",
+  "Credibilidad y confianza": "Credibility and trust",
+  "El nivel de confianza debe acompañar la sensibilidad de los datos que manejamos.": "Our level of assurance should match the sensitivity of the data we handle.",
+  "Autonomía en un proceso crítico": "Control over a critical process",
+  "Emitimos": "We issue",
+  "más de 300.000 certificados al año": "more than 300,000 certificates a year",
+  "y hoy dependemos de un tercero.": "and currently rely on a third party.",
+  "Eficiencia en costes": "Cost efficiency",
+  "Controlar emisión y mantenimiento nos permitiría": "Controlling issuance and maintenance would allow us to",
+  "aplanar la curva de costes": "flatten the cost curve",
+  "Nuevos servicios": "New services",
+  "Ampliar nuestra oferta con servicios cualificados:": "Expand our offering with qualified services:",
+  "Firma cualificada vía Wallet": "Qualified signing via Wallet",
+  "Emisión de QEAA": "QEAA issuance",
+  "Sellado de tiempo": "Timestamping",
+  "No es un requisito para operar Opendata o el Wallet: es una apuesta para": "Becoming a QTSP is not required to operate Opendata or the Wallet; it is a strategic move to",
+  "controlar una capacidad crítica y habilitar nuevos servicios": "control a critical capability and enable new services",
+  "QTSP · Atributos verificables": "QTSP · Verifiable credentials",
+  "Nuevos atributos para nuevos casos de uso": "New attributes for new use cases",
+  "Emitir QEAA de datos públicos": "Issue QEAAs from public data",
+  "Emitir QEAA de fuentes privadas": "Issue QEAAs from private sources",
+  "Minimización de datos": "Data minimisation",
+  "Emitir atestaciones verificables para atributos que aún no estén disponibles en el EUDI Wallet.": "Issue verifiable attestations for attributes not yet available in the EUDI Wallet.",
+  "Convertir información de fuentes privadas en atestaciones verificables para compartir desde el Wallet.": "Turn private-source information into verifiable attestations that can be shared from the Wallet.",
+  "QTSP · Banco de identidades": "QTSP · Identity Bank",
+  "Banco de identidades": "Identity Bank",
+  "Banco de Identidades": "Identity Bank",
+  "Qué es": "What it is",
+  "Por qué es estratégico": "Why it is strategic",
+  "Cada servicio activa una identidad": "Each service activates an identity",
+  "Bóveda privada y segura": "A secure, private vault",
+  "Espacio personal donde se aloja la identidad y se mantienen actualizados sus datos y documentos oficiales.": "A personal space that stores the identity and keeps official data and documents up to date.",
+  "Nos convierte en fuente de datos": "It makes us a data source",
+  "Una barrera de entrada creciente a medida que se incorporan más identidades.": "A growing barrier to entry as more identities are added.",
+  "Protege Opendata": "It protects Opendata",
+  "Mejora el rendimiento, reduce costes y reduce la dependencia de las AAPP para prestar el servicio.": "Improves performance, lowers costs and reduces reliance on public administrations to deliver the service.",
+  "Abre nuevos casos de uso": "It enables new use cases",
+  "Single-Form-On": "Single-Form-On",
+  "Envío de datos periódicos": "Periodic data sharing",
+  "Alertas proactivas personalizadas": "Personalised proactive alerts",
+  "PoC realizada": "PoC completed",
+  "Assessment completado": "Assessment completed",
+  "Funcional · técnico · legal": "Functional · technical · legal",
+  "Test de aceptación en banca": "Banking acceptance test",
+  "CASO DE USO": "USE CASE",
+  "Solicitud de préstamo": "Loan application",
+  "Solicita tu préstamo": "Apply for a loan",
+  "Elige el importe y el plazo.": "Choose the amount and term.",
+  "Importe": "Amount",
+  "Plazo": "Term",
+  "Solicitar préstamo": "Apply for loan",
+  "Banco · Área privada": "Bank · Secure area",
+  "Inicia sesión para comenzar tu solicitud.": "Sign in to start your application.",
+  "Usuario": "Username",
+  "Introduce tu usuario": "Enter your username",
+  "Contraseña": "Password",
+  "Iniciar sesión": "Sign in",
+  "Solicitud · 1 de 3": "Application · 1 of 3",
+  "Formulario": "Form",
+  "Completa tus datos personales.": "Enter your personal details.",
+  "Nombre": "First name",
+  "Apellidos": "Last name",
+  "Estado civil": "Marital status",
+  "Profesión": "Occupation",
+  "Dirección": "Address",
+  "Hijos": "Children",
+  "Ingresos": "Income",
+  "Continuar": "Continue",
+  "Verificación segura": "Secure verification",
+  "Identifica tu DNI": "Verify your identity",
+  "Coloca el documento dentro del marco.": "Place your ID document inside the frame.",
+  "Escaneando documento…": "Scanning document…",
+  "Solicitud · 2 de 3": "Application · 2 of 3",
+  "Documentación": "Documents",
+  "Consulta y autoriza los datos necesarios.": "Review and authorise the required data.",
+  "Renta": "Tax return",
+  "Historial laboral": "Employment history",
+  "Deudas": "Debts",
+  "Activar una identidad persistente": "Activate a persistent identity",
+  "Autorizar el envío de información al banco": "Authorise sharing information with the bank",
+  "Autorizar y continuar": "Authorise and continue",
+  "¡Préstamo concedido!": "Loan approved!",
+  "Tu solicitud ha sido aprobada.": "Your application has been approved.",
+  "Formalización": "Finalisation",
+  "Firma el contrato": "Sign the agreement",
+  "Revisa el documento antes de firmar.": "Review the document before signing.",
+  "Firmar digitalmente": "Sign digitally",
+  "Firma digital cualificada": "Qualified electronic signature",
+  "Actividad digital persistida": "Digital activity saved",
+  "Tu identidad segura está preparada para futuras gestiones.": "Your secure identity is ready for future interactions.",
+  "Tiempo después": "Later on",
+  "Servicio de alertas personalizadas": "Personalised alerts service",
+  "Tiempo después, Belender comunica al banco un incremento de ingresos detectado, según las autorizaciones vigentes.": "Later, Belender notifies the bank of a detected increase in income, subject to the permissions in place.",
+  "Banco": "Bank",
+  "Recibe una alerta autorizada": "Receives an authorised alert",
+  "Notificación": "Notification",
+  "¡Tienes una oferta!": "You have a new offer!",
+  "Nuevo préstamo preconcedido disponible.": "A new pre-approved loan is available.",
+  "Ver oferta": "View offer",
+  "Se puede volver a prestar": "Ready to lend again",
+  "La información oficial actualizada permite conceder nuevas operaciones con una experiencia más ágil.": "Updated official data enables new lending with a smoother experience.",
+  "Servicio de documentos y datos oficiales": "Official data service",
+  "Servicio de firma digital": "Digital signature service",
+  "Servicios prestados durante el recorrido": "Services delivered throughout the journey",
+  "Una experiencia conectada desde la solicitud inicial hasta las siguientes oportunidades.": "A connected experience from the initial application to future opportunities.",
+  "Una identidad, todo el ciclo": "One identity, the whole lifecycle",
+  "Servicios conectados durante la relación con el cliente.": "Connected services throughout the customer relationship.",
+  "Anterior": "Previous",
+  "Volver al inicio": "Back to start",
+  "Anexo · Seguridad": "Annex · Security",
+  "Seguridad": "Security",
+  "Certificaciones": "Certifications",
+  "En proceso · 1T 2027": "In progress · Q1 2027",
+  "Licencias y autorizaciones": "Licences and authorisations",
+  "Entidad de Registro eIDAS": "eIDAS Registration Authority",
+  "QTSP Europea": "European QTSP",
+  "En proceso · 2T 2027": "In progress · Q2 2027",
+  "Relying Party": "Relying Party",
+  "España, Portugal, Italia, Francia": "Spain, Portugal, Italy, France",
+  "Validaciones legales": "Legal validations"
+} };
+window.I18N_COPY.es = {};
+Object.keys(window.I18N_COPY.en).forEach(function (es) { var en = window.I18N_COPY.en[es]; if (!(en in window.I18N_COPY.es)) window.I18N_COPY.es[en] = es; });
+
+</script><script>
+/* Controlador genérico de "galería" de diapositivas: sin scroll vertical,
+   navegación con flechas, puntos de progreso y teclado (← → Esc). */
+(function () {
+  'use strict';
+
+  function Gallery(root) {
+    this.root = root;
+    this.stage = root.querySelector('[data-stage]');
+    this.slides = Array.prototype.slice.call(root.querySelectorAll('.slide'));
+    this.prevBtn = root.querySelector('[data-nav="prev"]');
+    this.nextBtn = root.querySelector('[data-nav="next"]');
+    this.dots = Array.prototype.slice.call(root.querySelectorAll('[data-dot]'));
+    this.index = 0;
+    this.bind();
+    this.render();
+  }
+
+  Gallery.prototype.bind = function () {
+    var self = this;
+    if (this.prevBtn) this.prevBtn.addEventListener('click', function () { self.go(self.index - 1); });
+    if (this.nextBtn) this.nextBtn.addEventListener('click', function () { self.go(self.index + 1); });
+    this.dots.forEach(function (dot, i) {
+      dot.addEventListener('click', function () { self.go(i); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') self.go(self.index + 1);
+      else if (e.key === 'ArrowLeft') self.go(self.index - 1);
+      else if (e.key === 'Escape') {
+        if (document.querySelector('.journey-overlay.is-open')) return; // deja que el modal se cierre primero
+        var home = document.querySelector('[data-home-link]');
+        if (home) window.location.href = home.href;
+      }
+    });
+  };
+
+  Gallery.prototype.go = function (i) {
+    if (i < 0 || i >= this.slides.length) return;
+    this.index = i;
+    this.render();
+  };
+
+  Gallery.prototype.render = function () {
+    var self = this;
+    this.slides.forEach(function (slide, i) { slide.classList.toggle('is-active', i === self.index); });
+    if (this.prevBtn) this.prevBtn.disabled = this.index === 0;
+    if (this.nextBtn) this.nextBtn.disabled = this.index === this.slides.length - 1;
+    this.dots.forEach(function (dot, i) {
+      dot.classList.toggle('is-active', i === self.index);
+    });
+  };
+
+  function init() {
+    var root = document.querySelector('[data-gallery]');
+    if (root) new Gallery(root);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script><script>
+/* Selector de idioma ES/EN, reutilizable en todas las páginas.
+   Cada página define window.I18N = { es: {clave: texto}, en: {...} }
+   antes de cargar este script, y marca el HTML con:
+     data-i18n="clave"        -> sustituye textContent
+     data-i18n-html="clave"   -> sustituye innerHTML (permite <strong> etc.)
+     data-i18n-attr="alt:clave|title:otraClave" -> sustituye atributos
+   Al cambiar de idioma se dispara el evento "belender:langchange" en
+   document, con detail = lang, para que scripts de la página (mapa,
+   modal del móvil...) puedan re-renderizar su contenido dinámico. */
+(function () {
+  'use strict';
+  var KEY = 'belender_lang';
+
+  function getLang() {
+    try { return localStorage.getItem(KEY) || 'es'; } catch (e) { return 'es'; }
+  }
+
+  function storeLang(lang) {
+    try { localStorage.setItem(KEY, lang); } catch (e) { /* ignorar */ }
+  }
+
+  function t(lang, key) {
+    var dict = window.I18N && window.I18N[lang];
+    if (dict && key in dict) return dict[key];
+    var common = window.I18N_COMMON && window.I18N_COMMON[lang];
+    if (common && key in common) return common[key];
+    return null;
+  }
+
+
+  function applyCopy(root, lang) {
+    var dict = window.I18N_COPY && window.I18N_COPY[lang];
+    if (!dict || !root) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      var parent = node.parentElement;
+      if (!parent || parent.closest('[data-i18n], [data-i18n-html], script, style')) continue;
+      var raw = node.nodeValue, trimmed = raw.trim();
+      if (trimmed && Object.prototype.hasOwnProperty.call(dict, trimmed)) {
+        var start = raw.indexOf(trimmed);
+        node.nodeValue = raw.slice(0, start) + dict[trimmed] + raw.slice(start + trimmed.length);
+      }
+    }
+    root.querySelectorAll('*').forEach(function (el) {
+      ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (value && Object.prototype.hasOwnProperty.call(dict, value)) el.setAttribute(attr, dict[value]);
+      });
+    });
+  }
+
+  function applyLang(lang) {
+    document.documentElement.setAttribute('lang', lang);
+
+    var pageTitle = document.querySelector('title');
+    var titleDict = window.I18N_COPY && window.I18N_COPY[lang];
+    if (pageTitle && titleDict && Object.prototype.hasOwnProperty.call(titleDict, pageTitle.textContent)) pageTitle.textContent = titleDict[pageTitle.textContent];
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var val = t(lang, el.getAttribute('data-i18n'));
+      if (val !== null) el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+      var val = t(lang, el.getAttribute('data-i18n-html'));
+      if (val !== null) el.innerHTML = val;
+    });
+    document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+      el.getAttribute('data-i18n-attr').split('|').forEach(function (pair) {
+        var parts = pair.split(':');
+        var attr = parts[0], key = parts[1];
+        var val = t(lang, key);
+        if (val !== null) el.setAttribute(attr, val);
+      });
+    });
+
+    document.querySelectorAll('[data-lang-btn]').forEach(function (btn) {
+      btn.classList.toggle('is-active', btn.getAttribute('data-lang-btn') === lang);
+    });
+
+    document.dispatchEvent(new CustomEvent('belender:langchange', { detail: lang }));
+    applyCopy(document.body, lang);
+  }
+
+  function setLang(lang) {
+    storeLang(lang);
+    applyLang(lang);
+  }
+
+  function initToggle() {
+    document.querySelectorAll('[data-lang-btn]').forEach(function (btn) {
+      btn.addEventListener('click', function () { setLang(btn.getAttribute('data-lang-btn')); });
+    });
+  }
+
+  window.BelenderI18n = { getLang: getLang, setLang: setLang, t: function (key) { return t(getLang(), key); }, applyCopy: function (root) { applyCopy(root || document.body, getLang()); } };
+
+  function init() {
+    initToggle();
+    applyLang(getLang());
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+<script>
+(function () {
+  var fields = '<div class="loan-screen__fields">' + [['Nombre','—'],['Apellidos','—'],['Estado civil','—'],['Profesión','—'],['Dirección','—'],['Hijos','—'],['Ingresos','—']].map(function (pair) { return '<div class="loan-screen__field"><small>' + pair[0] + '</small><b>' + pair[1] + '</b></div>'; }).join('') + '</div>';
+  var docs = '<div class="loan-screen__docs">' + ['Renta','Ingresos','Historial laboral','Deudas'].map(function (name) { return '<div class="loan-screen__doc">' + name + '</div>'; }).join('') + '</div>';
+  var success = function (title, sub) { return '<div class="loan-screen__success"><div class="loan-screen__check">✓</div><h2 class="loan-screen__title">' + title + '</h2><p class="loan-screen__subtitle">' + sub + '</p><div class="loan-screen__button" data-loan-next>Continuar</div></div>'; };
+  var steps = [
+    { label:'Solicitud', service:'', desc:'', options:[], screen:'<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Belender · Financiación</div><h2 class="loan-screen__title">Solicita tu préstamo</h2><p class="loan-screen__subtitle">Elige el importe y el plazo.</p><div class="loan-screen__field"><small>Importe</small><b>10.000 €</b></div><div class="loan-screen__field" style="margin-top:8px"><small>Plazo</small><b>48 meses</b></div><div class="loan-screen__button" data-loan-next>Solicitar préstamo</div>' },
+    { label:'Formulario', service:'Single-Form-On', desc:'Los datos necesarios se incorporan al formulario mediante la fuente elegida.', options:['Wallet Reader','Opendata','Banco de identidades'], screen:'<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Solicitud · 1 de 3</div><h2 class="loan-screen__title">Formulario</h2><p class="loan-screen__subtitle">Completa tus datos personales.</p>' + fields + '<div class="loan-screen__button" data-loan-next>Continuar</div>' },
+    { label:'Identificación', service:'Servicio de identificación', desc:'El cliente acredita su identidad mediante uno de los métodos disponibles.', options:['Wallet Reader','Certificado digital'], screen:'<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Verificación segura</div><h2 class="loan-screen__title">Identifica tu DNI</h2><p class="loan-screen__subtitle">Coloca el documento dentro del marco.</p><div class="loan-dni"><div class="loan-dni__card"><span class="loan-dni__photo"></span><span class="loan-dni__line"></span><span class="loan-dni__line loan-dni__line--short"></span><span class="loan-dni__line"></span><span class="loan-dni__scan"></span></div><p class="loan-screen__subtitle" style="margin:12px 0 0">Escaneando documento…</p></div><div class="loan-screen__button" data-loan-next>Continuar</div>' },
+    { label:'Documentación', service:'Servicio de documentos y datos oficiales', desc:'Se reúnen los datos necesarios para analizar la solicitud.', options:['Opendata','Wallet (QEAA)','Banco de identidades'], screen:'<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Solicitud · 2 de 3</div><h2 class="loan-screen__title">Documentación</h2><p class="loan-screen__subtitle">Consulta y autoriza los datos necesarios.</p>' + docs + '<div class="loan-consent"><div class="loan-consent__item"><span class="loan-consent__check">✓</span>Activar una identidad persistente</div><div class="loan-consent__item"><span class="loan-consent__check">✓</span>Autorizar el envío de información al banco</div></div><div class="loan-screen__button" data-loan-next>Autorizar y continuar</div>' },
+    { label:'Aprobación', service:'', desc:'', options:[], screen:success('¡Préstamo concedido!','Tu solicitud ha sido aprobada.') },
+    { label:'Firma', service:'Servicio de firma digital', desc:'El cliente firma el contrato de forma cualificada.', options:['Firma digital cualificada'], screen:'<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Formalización</div><h2 class="loan-screen__title">Firma el contrato</h2><p class="loan-screen__subtitle">Revisa el documento antes de firmar.</p><div class="loan-screen__contract"><svg viewBox="0 0 80 96" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5h34l18 18v68H15zM49 5v19h18M25 39h31M25 50h31M25 61h20"></path><path d="M25 79c8-9 13 5 21-3s11 5 19-4"></path></svg></div><div class="loan-screen__button" data-loan-next>Firmar digitalmente</div>' },
+    { label:'Identidad persistida', service:'', desc:'', options:[], screen:success('Actividad digital persistida','Tu identidad segura está preparada para futuras gestiones.') },
+    { label:'Tiempo después', service:'Servicio de alertas personalizadas', desc:'Tiempo después, Belender comunica al banco un incremento de ingresos detectado, según las autorizaciones vigentes.', options:['Banco de identidades'], system:true, screen:'' },
+    { label:'Nueva oferta', service:'Se puede volver a prestar', eyebrow:'NUEVA OPORTUNIDAD', desc:'La información oficial actualizada permite conceder nuevas operaciones con una experiencia más ágil.', options:['Opendata','Banco de Identidades','Servicio de firma digital'], screen:'<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Notificación</div><div class="loan-screen__success"><div class="loan-screen__check">↗</div><h2 class="loan-screen__title">¡Tienes una oferta!</h2><p class="loan-screen__subtitle">Nuevo préstamo preconcedido disponible.</p><div class="loan-screen__button" data-loan-next>Ver oferta</div></div>' },
+    { label:'Resumen', service:'Servicios prestados durante el recorrido', desc:'Una experiencia conectada desde la solicitud inicial hasta las siguientes oportunidades.', eyebrow:'RESUMEN', options:['Single-Form-On','Identificación','Banco de Identidades','Firma cualificada','Alertas personalizadas'], screen:success('Una identidad, todo el ciclo','Servicios conectados durante la relación con el cliente.') }
+  ];
+  var current = 0;
+  var screen = document.getElementById('loan-screen');
+  var service = document.getElementById('loan-service');
+  var stage = document.getElementById('loan-stage');
+  var phone = document.getElementById('loan-phone-wrap');
+  var system = document.getElementById('loan-system');
+  var progress = document.getElementById('loan-progress');
+  var previous = document.querySelector('[data-loan-prev]');
+  var next = document.querySelector('.loan-controls [data-loan-next]');
+  progress.innerHTML = steps.map(function () { return '<span class="loan-progress__segment"></span>'; }).join('');
+  function render() {
+    var item = steps[current];
+    stage.classList.toggle('is-system', !!item.system);
+    phone.hidden = !!item.system;
+    system.hidden = !item.system;
+    if (!item.system) screen.innerHTML = '<div class="loan-screen__brand"><span class="loan-screen__brand-mark">B</span>Solicitud de préstamo</div>' + item.screen;
+    service.classList.toggle('is-empty', !item.service);
+    service.innerHTML = item.service ? '<span class="loan-service__eyebrow">' + (item.eyebrow || 'SERVICIO') + '</span><h2>' + item.service + '</h2><p class="loan-service__desc">' + item.desc + '</p><div class="loan-service__options">' + item.options.map(function (option) { return '<span class="loan-service__option">' + option + '</span>'; }).join('') + '</div>' : '';
+    Array.prototype.forEach.call(progress.children, function (segment, index) { segment.classList.toggle('is-complete', index < current); segment.classList.toggle('is-current', index === current); });
+    previous.disabled = current === 0;
+    next.textContent = current === steps.length - 1 ? 'Volver al inicio' : 'Continuar';
+    if (window.BelenderI18n) window.BelenderI18n.applyCopy(document.body);
+  }
+  document.addEventListener('belender:langchange', render);
+  previous.addEventListener('click', function () { if (current > 0) { current--; render(); } });
+  next.addEventListener('click', function () { current = current === steps.length - 1 ? 0 : current + 1; render(); });
+  document.addEventListener('click', function (event) { if (event.target.closest && event.target.closest('#loan-screen [data-loan-next]')) { current = current === steps.length - 1 ? 0 : current + 1; render(); } });
+  render();
+})();
+</script></body></html>
