@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Belender · Presentación</title>
+<style>
+/* ============================================================
+   Belender · Presentación interactiva — estilos compartidos
+   Pensado para proyección en pantalla: tipografía grande (Tahoma),
+   sin scroll vertical, navegación por secciones tipo galería.
+   ============================================================ */
+
+:root {
+  --green: #86ae6b;
+  --green-600: #5e8f4a;
+  --green-300: #9cc77d;
+  --green-200: #bcd9a5;
+  --green-150: #cfe6bb;
+  --green-100: #d4e3c4;
+  --green-tint: #eef4e7;
+  --grad: linear-gradient(135deg, var(--green-600), var(--green-300));
+  --ink: #0B1120;
+  --ink-2: #1f2a17;
+  --slate: #5A6478;
+  --slate-2: #3A4358;
+  --slate-3: #26304A;
+  --muted: #8A93A6;
+  --muted-d: #9AA9C4;
+  --bg: #ffffff;
+  --bg-alt: #F6F8FC;
+  --line: #E6E9F0;
+  --line-2: #EEF1F7;
+  --line-3: #E3E7F0;
+  --font: Tahoma, Verdana, Segoe UI, system-ui, sans-serif;
+  --font-head: var(--font);
+  --font-body: var(--font);
+  --fs-base: 25px;
+  --radius: 22px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden; /* no scroll: todo cabe en pantalla, como una diapositiva */
+}
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg { display: block; max-width: 100%; }
+button { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   Barra superior (todas las páginas salvo el índice)
+   ============================================================ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  height: 84px; display: flex; align-items: center; gap: 24px;
+  padding: 0 40px; background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px); border-bottom: 1px solid var(--line-2);
+}
+.topbar__home {
+  display: inline-flex; align-items: center; gap: 10px; font-weight: 700;
+  font-size: 20px; color: var(--slate-2); flex-shrink: 0;
+}
+.topbar__home svg { width: 24px; height: 24px; }
+.topbar__home:hover { color: var(--green-600); }
+.topbar__title { font-weight: 700; font-size: 26px; color: var(--ink); }
+.topbar__crumb { color: var(--muted); font-weight: 600; }
+.lang-toggle {
+  margin-left: auto; display: flex; align-items: center; border: 1px solid var(--line-3);
+  border-radius: 999px; padding: 3px; gap: 2px;
+}
+.lang-toggle__btn {
+  border: none; background: none; cursor: pointer; font-family: var(--font);
+  font-weight: 700; font-size: 14px; color: var(--muted); padding: 6px 14px; border-radius: 999px;
+  transition: background 0.2s, color 0.2s;
+}
+.lang-toggle__btn.is-active { background: var(--ink); color: #fff; }
+.lang-toggle + .topbar__dots { margin-left: 20px; }
+.topbar__dots { margin-left: auto; display: flex; gap: 10px; }
+.topbar__dot {
+  width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--line-3); transition: background 0.2s, transform 0.2s;
+}
+.topbar__dot.is-active { background: var(--green-600); transform: scale(1.2); }
+.topbar__dot:hover { background: var(--green-300); }
+
+/* ============================================================
+   Escenario de diapositivas (galería horizontal, sin scroll)
+   ============================================================ */
+.stage {
+  position: fixed; inset: 0; top: 84px;
+}
+.slide {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: none; flex-direction: column; align-items: center; justify-content: safe center;
+  padding: 40px 90px;
+  overflow-y: auto; /* red de seguridad: si el contenido no cabe en pantallas pequeñas, hace scroll local en vez de desaparecer */
+  animation: slideIn 0.3s ease both;
+}
+.slide.is-active { display: flex; }
+@keyframes slideIn { from { opacity: 0; } to { opacity: 1; } }
+
+.arrow-nav {
+  position: fixed; top: calc(84px + (100vh - 84px) / 2); transform: translateY(-50%);
+  z-index: 50; width: 68px; height: 68px; border-radius: 50%; border: none;
+  background: #fff; box-shadow: 0 10px 30px -8px rgba(11, 17, 32, 0.28);
+  color: var(--slate-2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.arrow-nav svg { width: 30px; height: 30px; }
+.arrow-nav:hover { background: var(--green-tint); color: var(--green-600); transform: translateY(-50%) scale(1.06); }
+.arrow-nav:disabled { opacity: 0; pointer-events: none; }
+.arrow-nav--prev { left: 28px; }
+.arrow-nav--next { right: 28px; }
+
+.eyebrow {
+  display: inline-block; margin-bottom: 14px; font-size: 19px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-600);
+}
+.slide__title {
+  font-size: clamp(38px, 4.6vw, 58px); font-weight: 700; text-align: center;
+  max-width: 1100px; line-height: 1.15; color: var(--ink);
+}
+.slide__title--emphasis { text-transform: uppercase; text-decoration: underline; text-underline-offset: 5px; }
+.slide__lead {
+  font-size: 27px; color: var(--slate); text-align: center; max-width: 900px;
+  margin-top: 20px; line-height: 1.45;
+}
+.slide__body { margin-top: 44px; width: 100%; max-width: 1400px; }
+
+/* ============================================================
+   Componentes reutilizables de contenido
+   ============================================================ */
+.card-grid { display: grid; gap: 32px; width: 100%; }
+.card-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+.solution-card {
+  background: linear-gradient(180deg, #FBFCFE, #fff); border: 1px solid var(--line-2);
+  border-radius: var(--radius); padding: 40px 34px; text-align: left;
+  box-shadow: 0 20px 50px -30px rgba(11, 17, 32, 0.25);
+}
+.solution-card__icon {
+  width: 64px; height: 64px; border-radius: 18px; background: var(--grad);
+  color: #fff; display: flex; align-items: center; justify-content: center; margin-bottom: 22px;
+}
+.solution-card__icon svg { width: 32px; height: 32px; }
+.solution-card__title { font-size: 27px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.solution-card__desc { font-size: 20px; color: var(--slate); margin-top: 14px; line-height: 1.45; }
+
+.metric-tile {
+  text-align: center; padding: 42px 26px; border: 1px solid var(--line-2);
+  border-radius: var(--radius); background: linear-gradient(180deg, #FBFCFE, #fff);
+}
+.metric-tile__num {
+  font-weight: 700; font-size: 56px; line-height: 1;
+  background: linear-gradient(120deg, var(--green-600), var(--green-300));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.metric-tile__title { font-weight: 700; font-size: 22px; margin-top: 16px; color: var(--ink); }
+.metric-tile__desc { font-size: 18px; color: var(--muted); margin-top: 6px; }
+
+.metric-tile--compare { padding-top: 30px; }
+.metric-tile__today { font-size: 18px; font-weight: 600; color: var(--muted); }
+.metric-tile__growth {
+  display: inline-flex; align-items: center; gap: 6px; margin: 10px 0;
+  background: var(--grad); color: #fff; font-weight: 700; font-size: 18px;
+  padding: 6px 16px; border-radius: 999px;
+}
+.metric-tile__growth svg { width: 16px; height: 16px; }
+
+.assumption-chips {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 22px;
+}
+.assumption-chips--vertical { flex-direction: column; align-items: center; }
+.assumption-chip {
+  font-size: 17px; font-weight: 700; color: var(--ink); background: var(--green-tint);
+  border: 1px solid var(--green-150); padding: 9px 18px; border-radius: 999px;
+}
+.note-banner {
+  margin-top: 20px; text-align: center; font-size: 22px; font-weight: 600;
+  color: var(--slate-3); background: var(--bg-alt); border: 1px solid var(--line);
+  border-radius: 16px; padding: 20px 30px; max-width: 1100px;
+}
+
+.logo-groups { display: grid; grid-template-columns: 1fr; gap: 14px; width: 100%; }
+.logo-group {
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 16px 24px;
+  background: linear-gradient(180deg, #FBFCFE, #fff);
+}
+.logo-group__title {
+  font-size: 14px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--green-600); margin-bottom: 12px;
+}
+.logo-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.logo-chip {
+  font-weight: 700; font-size: 17px; color: var(--slate-3); background: var(--bg-alt);
+  border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px;
+}
+.logo-img-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 26px; align-items: center; justify-items: center;
+}
+.logo-img { height: 54px; width: auto; max-width: 100%; object-fit: contain; }
+
+.coming-soon {
+  text-align: center; color: var(--muted); font-size: 22px; margin-top: 30px;
+}
+
+@media (max-width: 1100px) {
+  .card-grid--3, .card-grid--4, .logo-groups { grid-template-columns: 1fr; }
+}
+
+</style>
+<style>
+  html, body { overflow: auto; } /* el índice sí puede crecer si añadimos más temas */
+  .idx-page { width: 100%; min-height: 100vh; display: flex; box-sizing: border-box; }
+
+  .idx-left {
+    flex: 0 0 75%; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
+    padding: 52px 48px; text-align: left;
+  }
+  .idx-eyebrow {
+    font-size: 20px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--green-600); margin-bottom: 16px;
+  }
+  .idx-title { font-size: clamp(38px, 5vw, 58px); font-weight: 700; color: var(--ink); }
+  .idx-sub { font-size: 22px; color: var(--slate); margin-top: 16px; max-width: 600px; }
+  .idx-list {
+    list-style: none; margin-top: 44px; display: flex; flex-direction: column; gap: 16px;
+    width: 100%; max-width: 1100px;
+  }
+  .idx-item {
+    display: grid; grid-template-columns: 48px minmax(340px, 1.05fr) minmax(300px, .95fr); align-items: center; gap: 14px 20px; padding: 18px 22px; border-radius: 18px;
+    border: 1px solid var(--line-2); background: linear-gradient(180deg, #FBFCFE, #fff);
+    font-size: 24px; font-weight: 700; color: var(--ink);
+    box-shadow: 0 16px 40px -28px rgba(11, 17, 32, 0.3); transition: transform 0.2s, border-color 0.2s;
+  }
+  .idx-item:hover { transform: translateY(-3px); border-color: var(--green-300); }
+  .idx-item__num {
+    flex-shrink: 0; width: 48px; height: 48px; border-radius: 13px; background: var(--grad);
+    color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .idx-item__label { min-width: 0; text-align: left; font-size: clamp(19px, 1.5vw, 22px); line-height: 1.15; }
+  .idx-item__hint { min-width: 0; font-size: 16px; line-height: 1.3; font-weight: 500; color: var(--muted); }
+  .idx-item--soon { color: var(--muted); cursor: default; }
+  .idx-item--soon .idx-item__num { background: var(--line-3); color: var(--muted); }
+  .idx-item--soon:hover { transform: none; border-color: var(--line-2); }
+  .idx-item svg { flex-shrink: 0; width: 26px; height: 26px; color: var(--muted); }
+
+  /* Panel derecho: para quién se ha preparado esta presentación */
+  .idx-right {
+    flex: 1 1 25%; min-width: 0; box-sizing: border-box; background: #C6007D; color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 52px 30px; text-align: center;
+  }
+  .idx-right__logo { background: #fff; border-radius: 20px; padding: 26px 36px; box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.5); }
+  .idx-right__logo img { height: 60px; width: auto; display: block; }
+  .idx-right__eyebrow {
+    margin-top: 40px; font-size: 15px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .idx-right__date { font-size: 30px; font-weight: 700; margin-top: 14px; }
+  .idx-right__event { font-size: 21px; color: rgba(255, 255, 255, 0.85); margin-top: 10px; max-width: 380px; line-height: 1.45; }
+
+  @media (max-width: 1150px) {
+    .idx-page { flex-direction: column; }
+    .idx-left { flex: 1 1 auto; padding: 50px 32px; text-align: center; align-items: center; }
+    .idx-item { grid-template-columns: 48px minmax(220px, .9fr) minmax(250px, 1.1fr); }
+    .idx-list { max-width: 900px; }
+    .idx-sub { max-width: none; }
+    .idx-right { padding: 50px 32px; }
+  }
+  .idx-lang { position: fixed; top: 24px; right: 28px; z-index: 10; }
+</style>
+</head>
+<body>
+  <div class="lang-toggle idx-lang">
+    <button type="button" class="lang-toggle__btn" data-lang-btn="es">ES</button>
+    <button type="button" class="lang-toggle__btn" data-lang-btn="en">EN</button>
+  </div>
+  <div class="idx-page">
+    <div class="idx-left">
+      <p class="idx-eyebrow" data-i18n="brand">Belender</p>
+      <h1 class="idx-title" data-i18n="title">Presentación</h1>
+      <p class="idx-sub" data-i18n="sub">Selecciona un área para navegar. Usa las flechas ← → dentro de cada sección.</p>
+
+      <ul class="idx-list">
+        <li><a class="idx-item" href="opendata.html">
+          <span class="idx-item__num">1</span>
+          <span class="idx-item__label" data-i18n="item1_label">Opendata</span>
+          <span class="idx-item__hint" data-i18n="item1_hint">Servicios · Casos de uso · Clientes · KPIs · Expansión geográfica</span>
+        </a></li>
+        <li><a class="idx-item" href="wallet.html">
+          <span class="idx-item__num">2</span>
+          <span class="idx-item__label" data-i18n="item2_label">EUDI Wallet</span>
+          <span class="idx-item__hint" data-i18n="item2_hint">Casos de uso · Solución · Izertis · Expansión</span>
+        </a></li>
+        <li><a class="idx-item" href="qtsp.html">
+          <span class="idx-item__num">3</span>
+          <span class="idx-item__label" data-i18n="item3_label">QTSP, Atributos verificables y Banco de Identidades</span>
+          <span class="idx-item__hint" data-i18n="item3_hint">Por qué QTSP · Atributos verificables · Banco de identidades</span>
+        </a></li>
+        <li><a class="idx-item" href="solicitud-financiacion.html">
+          <span class="idx-item__num">4</span>
+          <span class="idx-item__label" data-i18n="item4_label">Ejemplo end2end</span>
+          <span class="idx-item__hint" data-i18n="item4_hint">Recorrido end-to-end</span>
+        </a></li>
+        <li><a class="idx-item" href="anexo-seguridad.html">
+          <span class="idx-item__num">5</span>
+          <span class="idx-item__label" data-i18n="item5_label">Anexo: Seguridad</span>
+          <span class="idx-item__hint" data-i18n="item5_hint">Certificaciones · Licencias · Validaciones</span>
+        </a></li>
+      </ul>
+    </div>
+
+    <div class="idx-right">
+      <div class="idx-right__logo"><img src="data:image/jpeg;base64,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" alt="Experian"></div>
+      <p class="idx-right__eyebrow" data-i18n="prepared_for">Preparado para</p>
+      <p class="idx-right__date" data-i18n="event_date">5 de octubre de 2026</p>
+      <p class="idx-right__event" data-i18n="event_name">Convención Experian en Granada (España)</p>
+    </div>
+  </div>
+
+<script>
+window.I18N = {
+  es: {
+    brand: 'Belender',
+    title: 'Presentación',
+    sub: 'Selecciona un área para navegar. Usa las flechas ← → dentro de cada sección.',
+    item1_label: 'Opendata', item1_hint: 'Servicios · Casos de uso · Clientes · KPIs · Expansión geográfica',
+    item2_label: 'EUDI Wallet', item2_hint: 'Casos de uso · Solución · Izertis · Expansión',
+    item3_label: 'QTSP, Atributos verificables y Banco de Identidades', item3_hint: 'Por qué QTSP · Atributos verificables · Banco de identidades',
+    item4_label: 'Ejemplo end2end', item4_hint: 'Recorrido end-to-end',
+    item5_label: 'Anexo: Seguridad', item5_hint: 'Certificaciones · Licencias · Validaciones',
+    prepared_for: 'Preparado para',
+    event_date: '5 de octubre de 2026',
+    event_name: 'Convención Experian en Granada (España)'
+  },
+  en: {
+    brand: 'Belender',
+    title: 'Presentation',
+    sub: 'Select an area to navigate. Use the ← → arrows within each section.',
+    item1_label: 'Opendata', item1_hint: 'Services · Use cases · Clients · KPIs · Geographic expansion',
+    item2_label: 'EUDI Wallet', item2_hint: 'Use cases · Solution · Izertis · Expansion',
+    item3_label: 'QTSP, Verifiable Credentials and Identity Bank', item3_hint: 'Why become a QTSP · Verifiable credentials · Identity Bank',
+    item4_label: 'End-to-end example', item4_hint: 'End-to-end journey',
+    item5_label: 'Annex: Security', item5_hint: 'Certifications · Licenses · Validations',
+    prepared_for: 'Prepared for',
+    event_date: 'October 5, 2026',
+    event_name: 'Experian Convention in Granada (Spain)'
+  }
+};
+</script>
+<script>
+/* Cadenas compartidas entre páginas (topbar, flechas de navegación...). */
+window.I18N_COMMON = {
+  es: {
+    topbar_home: 'Índice',
+    arrow_prev: 'Anterior',
+    arrow_next: 'Siguiente'
+  },
+  en: {
+    topbar_home: 'Index',
+    arrow_prev: 'Previous',
+    arrow_next: 'Next'
+  }
+};
+
+window.I18N_COPY = { en: {
+  "Índice": "Index",
+  "Presentación": "Presentation",
+  "Preparado para": "Prepared for",
+  "Convención Experian en Granada (España)": "Experian Convention in Granada, Spain",
+  "Servicios · Casos de uso · Clientes · KPIs · Expansión geográfica": "Services · Use cases · Clients · KPIs · Geographic expansion",
+  "Casos de uso · Solución · Izertis · Expansión": "Use cases · Solution · Izertis · Expansion",
+  "Por qué QTSP · Atributos verificables · Banco de identidades": "Why become a QTSP · Verifiable credentials · Identity Bank",
+  "Ejemplo end2end": "End-to-end example",
+  "Recorrido end-to-end": "End-to-end journey",
+  "Anexo: Seguridad": "Security annex",
+  "Certificaciones · Licencias · Validaciones": "Certifications · Licenses · Compliance reviews",
+  "Conectividad directa": "Direct connectivity",
+  "Todas las vías legales de acceso a datos públicos": "All legal routes to public data",
+  "Vías de acceso": "Access methods",
+  "Certificado Digital": "Digital certificate",
+  "Próximamente": "Coming soon",
+  "Portales oficiales · España": "Official portals · Spain",
+  "Datos oficiales": "Official data",
+  "Capacidades Experian": "Experian capabilities",
+  "Atributos": "Attributes",
+  "Flujo de cliente": "Customer journey",
+  "Ver flujo de cliente": "View customer journey",
+  "Identificación presencial": "In-person identification",
+  "Identificación remota": "Remote identification",
+  "Certificado de cliente": "Client certificate",
+  "Flujo de cliente SMS": "SMS customer journey",
+  "Flujo de cliente Cl@ve": "Cl@ve customer journey",
+  "Flujo de cliente Apodera": "Apodera customer journey",
+  "Cerrar": "Close",
+  "Siguiente": "Next",
+  "Subsección 1": "Subsection 1",
+  "Subsección 2": "Subsection 2",
+  "Subsección 3": "Subsection 3",
+  "Subsección 4": "Subsection 4",
+  "Subsección 5": "Subsection 5",
+  "SERVICIO": "SERVICE",
+  "NUEVA OPORTUNIDAD": "NEW OPPORTUNITY",
+  "RESUMEN": "SUMMARY",
+  "Anexo · Seguridad": "Annex · Security",
+  "Belender · Presentación": "Belender · Presentation",
+  "Solicitud de financiación · Belender": "End-to-end example · Belender",
+  "5 de octubre de 2026": "October 5, 2026",
+  "+4.500 datos oficiales": "+4,500 official data records",
+  "+20 EEFFs": "20+ financial institutions",
+  "1T 2027": "Q1 2027",
+  "2T 2027": "Q2 2027",
+  "3T 2027": "Q3 2027",
+  "4T 2027": "Q4 2027",
+  "3T 2028": "Q3 2028",
+  "4T 2028": "Q4 2028",
+  "QTSP · Belender": "QTSP · Belender",
+  "Anexo: Seguridad · Belender": "Security annex · Belender",
+  "SMS": "SMS",
+  "Cl@ve": "Cl@ve",
+  "Apodera": "Apodera",
+  "Opendata · Casos de uso": "Opendata · Use cases",
+  "A lo largo del ciclo de vida del cliente": "Across the customer lifecycle",
+  "Onboarding": "Onboarding",
+  "Diligencia": "Due",
+  "debida": "diligence",
+  "Admisión": "Credit",
+  "de riesgos": "assessment",
+  "Seguimiento": "Risk",
+  "riesgos": "monitoring",
+  "Opendata · Clientes": "Opendata · Clients",
+  "Algunos de nuestros clientes": "Some of our clients",
+  "Belender (directo)": "Belender (direct)",
+  "Canal Experian": "Experian channel",
+  "Entre Experian y Belender tenemos prácticamente todos los Bancos Tier 1 y Tier 2 en España.": "Together, Experian and Belender cover nearly all Tier 1 and Tier 2 banks in Spain.",
+  "Opendata · KPIs": "Opendata · KPIs",
+  "Crecimiento y potencial de consumo": "Growth and consumption potential",
+  "Inicio": "Launch",
+  "¡Empezamos!": "We’re off!",
+  "Primer banco": "First bank",
+  "servicios": "services",
+  "en 1 año": "in one year",
+  "documentos": "documents",
+  "descargados": "downloaded",
+  "servicios prestados": "services delivered",
+  "documentos descargados": "documents downloaded",
+  "del potencial de consumo de los clientes actuales": "of current clients’ consumption potential",
+  "Solo con los clientes actuales": "Based on current clients only",
+  "De forma transversal": "Across the board",
+  "Extracción de key data": "Key data extraction",
+  "Conversión": "Conversion",
+  "Estimación": "Forecast",
+  "Crecimiento": "Growth",
+  "Opendata · Expansión geográfica": "Opendata · Geographic expansion",
+  "Despliegue europeo": "European rollout",
+  "Una expansión por fases, con Opendata como línea de lanzamiento": "A phased expansion, with Opendata as the launch track",
+  "Cada mercado incorpora sus métodos de autenticación y portales oficiales.": "Each market will add its authentication methods and official portals.",
+  "Métodos de autenticación": "Authentication methods",
+  "Portales de acceso": "Access portals",
+  "Por definir": "To be confirmed",
+  "Ver métodos y portales de España": "View authentication methods and portals for Spain",
+  "Ver métodos y portales de Portugal": "View authentication methods and portals for Portugal",
+  "Ver métodos y portales de Italia": "View authentication methods and portals for Italy",
+  "Ver métodos y portales de Francia": "View authentication methods and portals for France",
+  "Ver métodos y portales de Alemania": "View authentication methods and portals for Germany",
+  "Ver métodos y portales de Países Bajos": "View authentication methods and portals for the Netherlands",
+  "Ver métodos y portales de Polonia": "View authentication methods and portals for Poland",
+  "Ver métodos y portales de Suecia": "View authentication methods and portals for Sweden",
+  "Ver métodos y portales de Dinamarca": "View authentication methods and portals for Denmark",
+  "Ver métodos y portales de Noruega": "View authentication methods and portals for Norway",
+  "Ver métodos y portales de Austria": "View authentication methods and portals for Austria",
+  "España": "Spain",
+  "Italia": "Italy",
+  "Francia": "France",
+  "Alemania": "Germany",
+  "Países Bajos": "The Netherlands",
+  "Polonia": "Poland",
+  "Suecia": "Sweden",
+  "Dinamarca": "Denmark",
+  "Noruega": "Norway",
+  "Austria": "Austria",
+  "4T 2026": "Q4 2026",
+  "1T 2027": "Q1 2027",
+  "2T 2027": "Q2 2027",
+  "3T 2027": "Q3 2027",
+  "4T 2027": "Q4 2027",
+  "1T 2028": "Q1 2028",
+  "2T 2028": "Q2 2028",
+  "3T 2028": "Q3 2028",
+  "4T 2028": "Q4 2028",
+  "SPID · MVP": "SPID · MVP",
+  "MVP": "MVP",
+  "Certificado digital": "Digital certificate",
+  "BankID móvil": "Mobile BankID",
+  "EUDI Wallet · Casos de uso": "EUDI Wallet · Use cases",
+  "Casos de uso. Por qué entrar en el espacio de EUDI Wallet": "Use cases: why enter the EUDI Wallet space",
+  "Responder a la obligación normativa de aceptar el EUDI Wallet como mecanismo de identificación, en los casos aplicables a bancos y grandes corporaciones.": "Meet the regulatory obligation for banks and large corporations to accept the EUDI Wallet as an identification method, where applicable.",
+  "Fuente de datos": "Data source",
+  "Incorporar los QEAAs del EUDI Wallet a los datos que puede ofrecer un servicio de Opendata.": "Add EUDI Wallet QEAAs to the data available through an Opendata service.",
+  "Anticiparnos a la evolución del Wallet nos prepara para": "Anticipating the Wallet’s evolution prepares us to",
+  "proteger nuestra posición en Opendata": "protect our position in Opendata",
+  "a medida que crezcan sus atributos y casos de uso.": "as its attributes and use cases grow.",
+  "EUDI Wallet · Solución": "EUDI Wallet · Solution",
+  "Dos formas de integrar el EUDI Wallet": "Two ways to integrate the EUDI Wallet",
+  "Wallet Reader para RPs": "Wallet Reader for RPs",
+  "Solución técnica para que el cliente actúe como relying party: lee el Wallet, valida y entrega el PID y los atributos a sus sistemas.": "A technical solution that lets the client act as a relying party: it reads the Wallet, validates and delivers the PID and attributes to the client’s systems.",
+  "On-premise": "On-premises",
+  "Cloud Belender": "Belender cloud",
+  "RPaaS": "RPaaS",
+  "Belender actúa como relying party, obtiene del Wallet el PID y los atributos autorizados por la persona usuaria y los entrega al tercero con su consentimiento.": "Belender acts as a relying party, retrieves the PID and user-authorised attributes from the Wallet, and shares them with a third party with the user’s consent.",
+  "EUDI Wallet · Partner": "EUDI Wallet · Partner",
+  "¿Quién es Izertis?": "Who is Izertis?",
+  "Participante del consorcio europeo.": "Member of the European consortium.",
+  "Primera wallet digital open source española aprobada por la Comisión Europea.": "Spain’s first open-source digital wallet approved by the European Commission.",
+  "Digital Credentials for Europe. Participante de varios pilotos europeos en universidades.": "Digital Credentials for Europe. Participant in several European university pilots.",
+  "EUDI Wallet · Plan de expansión": "EUDI Wallet · Expansion plan",
+  "Plan de expansión": "Expansion plan",
+  "Despliegue progresivo del servicio Wallet Reader en Europa": "Progressive rollout of Wallet Reader across Europe",
+  "QTSP · Atributos verificables · Banco de Identidades": "QTSP · Verifiable credentials · Identity Bank",
+  "Por qué hacernos QTSP": "Why become a QTSP",
+  "Credibilidad y confianza": "Credibility and trust",
+  "El nivel de confianza debe acompañar la sensibilidad de los datos que manejamos.": "Our level of assurance should match the sensitivity of the data we handle.",
+  "Autonomía en un proceso crítico": "Control over a critical process",
+  "Emitimos": "We issue",
+  "más de 300.000 certificados al año": "more than 300,000 certificates a year",
+  "y hoy dependemos de un tercero.": "and currently rely on a third party.",
+  "Eficiencia en costes": "Cost efficiency",
+  "Controlar emisión y mantenimiento nos permitiría": "Controlling issuance and maintenance would allow us to",
+  "aplanar la curva de costes": "flatten the cost curve",
+  "Nuevos servicios": "New services",
+  "Ampliar nuestra oferta con servicios cualificados:": "Expand our offering with qualified services:",
+  "Firma cualificada vía Wallet": "Qualified signing via Wallet",
+  "Emisión de QEAA": "QEAA issuance",
+  "Sellado de tiempo": "Timestamping",
+  "No es un requisito para operar Opendata o el Wallet: es una apuesta para": "Becoming a QTSP is not required to operate Opendata or the Wallet; it is a strategic move to",
+  "controlar una capacidad crítica y habilitar nuevos servicios": "control a critical capability and enable new services",
+  "QTSP · Atributos verificables": "QTSP · Verifiable credentials",
+  "Nuevos atributos para nuevos casos de uso": "New attributes for new use cases",
+  "Emitir QEAA de datos públicos": "Issue QEAAs from public data",
+  "Emitir QEAA de fuentes privadas": "Issue QEAAs from private sources",
+  "Minimización de datos": "Data minimisation",
+  "Emitir atestaciones verificables para atributos que aún no estén disponibles en el EUDI Wallet.": "Issue verifiable attestations for attributes not yet available in the EUDI Wallet.",
+  "Convertir información de fuentes privadas en atestaciones verificables para compartir desde el Wallet.": "Turn private-source information into verifiable attestations that can be shared from the Wallet.",
+  "QTSP · Banco de identidades": "QTSP · Identity Bank",
+  "Banco de identidades": "Identity Bank",
+  "Banco de Identidades": "Identity Bank",
+  "Qué es": "What it is",
+  "Por qué es estratégico": "Why it is strategic",
+  "Cada servicio activa una identidad": "Each service activates an identity",
+  "Bóveda privada y segura": "A secure, private vault",
+  "Espacio personal donde se aloja la identidad y se mantienen actualizados sus datos y documentos oficiales.": "A personal space that stores the identity and keeps official data and documents up to date.",
+  "Nos convierte en fuente de datos": "It makes us a data source",
+  "Una barrera de entrada creciente a medida que se incorporan más identidades.": "A growing barrier to entry as more identities are added.",
+  "Protege Opendata": "It protects Opendata",
+  "Mejora el rendimiento, reduce costes y reduce la dependencia de las AAPP para prestar el servicio.": "Improves performance, lowers costs and reduces reliance on public administrations to deliver the service.",
+  "Abre nuevos casos de uso": "It enables new use cases",
+  "Single-Form-On": "Single-Form-On",
+  "Envío de datos periódicos": "Periodic data sharing",
+  "Alertas proactivas personalizadas": "Personalised proactive alerts",
+  "PoC realizada": "PoC completed",
+  "Assessment completado": "Assessment completed",
+  "Funcional · técnico · legal": "Functional · technical · legal",
+  "Test de aceptación en banca": "Banking acceptance test",
+  "CASO DE USO": "USE CASE",
+  "Solicitud de préstamo": "Loan application",
+  "Solicita tu préstamo": "Apply for a loan",
+  "Elige el importe y el plazo.": "Choose the amount and term.",
+  "Importe": "Amount",
+  "Plazo": "Term",
+  "Solicitar préstamo": "Apply for loan",
+  "Banco · Área privada": "Bank · Secure area",
+  "Inicia sesión para comenzar tu solicitud.": "Sign in to start your application.",
+  "Usuario": "Username",
+  "Introduce tu usuario": "Enter your username",
+  "Contraseña": "Password",
+  "Iniciar sesión": "Sign in",
+  "Solicitud · 1 de 3": "Application · 1 of 3",
+  "Formulario": "Form",
+  "Completa tus datos personales.": "Enter your personal details.",
+  "Nombre": "First name",
+  "Apellidos": "Last name",
+  "Estado civil": "Marital status",
+  "Profesión": "Occupation",
+  "Dirección": "Address",
+  "Hijos": "Children",
+  "Ingresos": "Income",
+  "Continuar": "Continue",
+  "Verificación segura": "Secure verification",
+  "Identifica tu DNI": "Verify your identity",
+  "Coloca el documento dentro del marco.": "Place your ID document inside the frame.",
+  "Escaneando documento…": "Scanning document…",
+  "Solicitud · 2 de 3": "Application · 2 of 3",
+  "Documentación": "Documents",
+  "Consulta y autoriza los datos necesarios.": "Review and authorise the required data.",
+  "Renta": "Tax return",
+  "Historial laboral": "Employment history",
+  "Deudas": "Debts",
+  "Activar una identidad persistente": "Activate a persistent identity",
+  "Autorizar el envío de información al banco": "Authorise sharing information with the bank",
+  "Autorizar y continuar": "Authorise and continue",
+  "¡Préstamo concedido!": "Loan approved!",
+  "Tu solicitud ha sido aprobada.": "Your application has been approved.",
+  "Formalización": "Finalisation",
+  "Firma el contrato": "Sign the agreement",
+  "Revisa el documento antes de firmar.": "Review the document before signing.",
+  "Firmar digitalmente": "Sign digitally",
+  "Firma digital cualificada": "Qualified electronic signature",
+  "Actividad digital persistida": "Digital activity saved",
+  "Tu identidad segura está preparada para futuras gestiones.": "Your secure identity is ready for future interactions.",
+  "Tiempo después": "Later on",
+  "Servicio de alertas personalizadas": "Personalised alerts service",
+  "Tiempo después, Belender comunica al banco un incremento de ingresos detectado, según las autorizaciones vigentes.": "Later, Belender notifies the bank of a detected increase in income, subject to the permissions in place.",
+  "Banco": "Bank",
+  "Recibe una alerta autorizada": "Receives an authorised alert",
+  "Notificación": "Notification",
+  "¡Tienes una oferta!": "You have a new offer!",
+  "Nuevo préstamo preconcedido disponible.": "A new pre-approved loan is available.",
+  "Ver oferta": "View offer",
+  "Se puede volver a prestar": "Ready to lend again",
+  "La información oficial actualizada permite conceder nuevas operaciones con una experiencia más ágil.": "Updated official data enables new lending with a smoother experience.",
+  "Servicio de documentos y datos oficiales": "Official data service",
+  "Servicio de firma digital": "Digital signature service",
+  "Servicios prestados durante el recorrido": "Services delivered throughout the journey",
+  "Una experiencia conectada desde la solicitud inicial hasta las siguientes oportunidades.": "A connected experience from the initial application to future opportunities.",
+  "Una identidad, todo el ciclo": "One identity, the whole lifecycle",
+  "Servicios conectados durante la relación con el cliente.": "Connected services throughout the customer relationship.",
+  "Anterior": "Previous",
+  "Volver al inicio": "Back to start",
+  "Anexo · Seguridad": "Annex · Security",
+  "Seguridad": "Security",
+  "Certificaciones": "Certifications",
+  "En proceso · 1T 2027": "In progress · Q1 2027",
+  "Licencias y autorizaciones": "Licences and authorisations",
+  "Entidad de Registro eIDAS": "eIDAS Registration Authority",
+  "QTSP Europea": "European QTSP",
+  "En proceso · 2T 2027": "In progress · Q2 2027",
+  "Relying Party": "Relying Party",
+  "España, Portugal, Italia, Francia": "Spain, Portugal, Italy, France",
+  "Validaciones legales": "Legal validations"
+} };
+window.I18N_COPY.es = {};
+Object.keys(window.I18N_COPY.en).forEach(function (es) { var en = window.I18N_COPY.en[es]; if (!(en in window.I18N_COPY.es)) window.I18N_COPY.es[en] = es; });
+
+</script><script>
+/* Selector de idioma ES/EN, reutilizable en todas las páginas.
+   Cada página define window.I18N = { es: {clave: texto}, en: {...} }
+   antes de cargar este script, y marca el HTML con:
+     data-i18n="clave"        -> sustituye textContent
+     data-i18n-html="clave"   -> sustituye innerHTML (permite <strong> etc.)
+     data-i18n-attr="alt:clave|title:otraClave" -> sustituye atributos
+   Al cambiar de idioma se dispara el evento "belender:langchange" en
+   document, con detail = lang, para que scripts de la página (mapa,
+   modal del móvil...) puedan re-renderizar su contenido dinámico. */
+(function () {
+  'use strict';
+  var KEY = 'belender_lang';
+
+  function getLang() {
+    try { return localStorage.getItem(KEY) || 'es'; } catch (e) { return 'es'; }
+  }
+
+  function storeLang(lang) {
+    try { localStorage.setItem(KEY, lang); } catch (e) { /* ignorar */ }
+  }
+
+  function t(lang, key) {
+    var dict = window.I18N && window.I18N[lang];
+    if (dict && key in dict) return dict[key];
+    var common = window.I18N_COMMON && window.I18N_COMMON[lang];
+    if (common && key in common) return common[key];
+    return null;
+  }
+
+
+  function applyCopy(root, lang) {
+    var dict = window.I18N_COPY && window.I18N_COPY[lang];
+    if (!dict || !root) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var node;
+    while ((node = walker.nextNode())) {
+      var parent = node.parentElement;
+      if (!parent || parent.closest('[data-i18n], [data-i18n-html], script, style')) continue;
+      var raw = node.nodeValue, trimmed = raw.trim();
+      if (trimmed && Object.prototype.hasOwnProperty.call(dict, trimmed)) {
+        var start = raw.indexOf(trimmed);
+        node.nodeValue = raw.slice(0, start) + dict[trimmed] + raw.slice(start + trimmed.length);
+      }
+    }
+    root.querySelectorAll('*').forEach(function (el) {
+      ['aria-label', 'title', 'placeholder'].forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (value && Object.prototype.hasOwnProperty.call(dict, value)) el.setAttribute(attr, dict[value]);
+      });
+    });
+  }
+
+  function applyLang(lang) {
+    document.documentElement.setAttribute('lang', lang);
+
+    var pageTitle = document.querySelector('title');
+    var titleDict = window.I18N_COPY && window.I18N_COPY[lang];
+    if (pageTitle && titleDict && Object.prototype.hasOwnProperty.call(titleDict, pageTitle.textContent)) pageTitle.textContent = titleDict[pageTitle.textContent];
+
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var val = t(lang, el.getAttribute('data-i18n'));
+      if (val !== null) el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+      var val = t(lang, el.getAttribute('data-i18n-html'));
+      if (val !== null) el.innerHTML = val;
+    });
+    document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+      el.getAttribute('data-i18n-attr').split('|').forEach(function (pair) {
+        var parts = pair.split(':');
+        var attr = parts[0], key = parts[1];
+        var val = t(lang, key);
+        if (val !== null) el.setAttribute(attr, val);
+      });
+    });
+
+    document.querySelectorAll('[data-lang-btn]').forEach(function (btn) {
+      btn.classList.toggle('is-active', btn.getAttribute('data-lang-btn') === lang);
+    });
+
+    document.dispatchEvent(new CustomEvent('belender:langchange', { detail: lang }));
+    applyCopy(document.body, lang);
+  }
+
+  function setLang(lang) {
+    storeLang(lang);
+    applyLang(lang);
+  }
+
+  function initToggle() {
+    document.querySelectorAll('[data-lang-btn]').forEach(function (btn) {
+      btn.addEventListener('click', function () { setLang(btn.getAttribute('data-lang-btn')); });
+    });
+  }
+
+  window.BelenderI18n = { getLang: getLang, setLang: setLang, t: function (key) { return t(getLang(), key); }, applyCopy: function (root) { applyCopy(root || document.body, getLang()); } };
+
+  function init() {
+    initToggle();
+    applyLang(getLang());
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+</body>
+</html>
